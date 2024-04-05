@@ -1,0 +1,68 @@
+
+<%
+List<CarrierDetails> carrierList=(List<CarrierDetails>)request.getAttribute("carrierList");
+String carrierIdAnnotation = "carrier_id_value";
+%>
+<portlet:renderURL var="displayName">
+				<portlet:param name="jspPage" value="/html/viewInfo.jsp"/>
+				<portlet:param name="carrierId" value='carrier_id_value'/>
+			</portlet:renderURL>
+<liferay-ui:error key="predifien-document-not-availabe" message="Oops!!! , Agreement Format Document not found ,Please Upload Agreement Format Document !!" />
+
+
+<div class="customSearchContainer kyc_bg"> 
+
+ <ui:search-container delta="20" emptyResultsMessage="There-are-no-Carrier"  orderByCol="${orderByCol}" orderByType="${orderByType}"  iteratorURL="${iteratorURL}" >
+  <ui:search-container-results results="<%=ListUtil.subList(carrierList,searchContainer.getStart(),searchContainer.getEnd()) %>" total="<%=carrierList.size()%>"/>
+  <ui:search-container-row className="com.panamax.bvi.services.model.CarrierDetails" keyProperty="carrierId" modelVar="currentCarrierDetail" escapedModel="<%= true %>">
+       
+   <ui:search-container-column-text orderable="true"  orderableProperty="carrier_name" name="Carrier Name" href="<%=displayName.replace(carrierIdAnnotation, String.valueOf(currentCarrierDetail.getCarrierId())) %>" value="<%=currentCarrierDetail.getCarrier_name()%>" />
+   <ui:search-container-column-text orderable="true" orderableProperty="carrier_type" name="Carrier Type"  value="<%=currentCarrierDetail.getCarrier_type() %>"/> 
+   <ui:search-container-column-text orderable="true" orderableProperty="registered_country" name="Country" value="<%= currentCarrierDetail.getRegistered_country() %>" />
+   
+   <%
+    List<CarrierUserDetails> cUD=CarrierUserDetailsLocalServiceUtil.getCarrierUserDetailsByCarrierName(currentCarrierDetail.getCarrier_name());
+   %>
+   
+   <ui:search-container-column-text orderable="true" orderableProperty="carrier_name" name="Contact Person" value="<%=   cUD.get(0).getUser_name()  %>" />
+   <ui:search-container-column-text orderable="true" orderableProperty="carrier_contact_no" name="Telephone No" value="<%= String.valueOf(currentCarrierDetail.getCarrier_contact_no()) %>"/>
+   <ui:search-container-column-text orderable="true" orderableProperty="registrationStatus" name="KYC Status" value="<%= currentCarrierDetail.getRegistrationStatus() %>" />
+   <%
+   	
+ 	 String dispDate=StringPool.NULL;
+     Date regDate=null;
+     regDate=currentCarrierDetail.getRegistrationDate();
+     if(regDate!=null){
+  	 	dispDate = BillingInfoHelper.getDateFormatedString(regDate);
+     }
+     else{
+    	 dispDate="";
+     }
+   %>
+   <ui:search-container-column-text orderable="true" orderableProperty="registrationDate" name="Registration Date" value="<%=  dispDate %>" />
+  </ui:search-container-row> 
+  <ui:search-iterator/>
+ </ui:search-container>
+ 
+ 
+ 
+   String orderByCol = ParamUtil.get(renderRequest, "orderByCol","registrationDate");
+	          renderRequest.setAttribute("orderByCol", orderByCol);
+	          String orderByType = ParamUtil.get( renderRequest, "orderByType", "desc");
+	          renderRequest.setAttribute("orderByType", orderByType);
+ 
+ 
+ BeanComparator comparat=new BeanComparator(orderByCol);
+	         
+	           Collections.sort(carrierDetailList, comparat);
+	           
+	           if (orderByType.equalsIgnoreCase("desc"))  { 
+	            Collections.reverse(carrierDetailList); 
+	           }
+			   
+			   renderRequest.setAttribute("carrierList", carrierDetailList);
+			   
+			   
+			   
+			    commons-beanutils.jar,\
+    commons-collections.jar
